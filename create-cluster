@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "redis-functions.sh"
+for f in $(ls commands); do source "commands/$f"; done
 
 # Settings
 PORT=30000
@@ -19,72 +20,6 @@ fi
 # Computed vars
 ENDPORT=$((PORT+NODES))
 
-start_command() {
-  while [ $((PORT < ENDPORT)) != "0" ]; do
-      PORT=$((PORT+1))
-      echo "Starting $PORT"
-      redis-server --port $PORT --cluster-enabled yes --cluster-config-file nodes-${PORT}.conf --cluster-node-timeout $TIMEOUT --appendonly yes --appendfilename appendonly-${PORT}.aof --dbfilename dump-${PORT}.rdb --logfile ${PORT}.log --daemonize yes
-  done
-  exit 0
-}
-
-create_command() {
-  HOSTS=""
-  while [ $((PORT < ENDPORT)) != "0" ]; do
-      PORT=$((PORT+1))
-      HOSTS="$HOSTS 127.0.0.1:$PORT"
-  done
-  redis-trib create --replicas $REPLICAS $HOSTS
-  exit 0
-}
-
-stop_command() {
-  while [ $((PORT < ENDPORT)) != "0" ]; do
-      PORT=$((PORT+1))
-      echo "Stopping $PORT"
-      redis-cli -p $PORT shutdown nosave
-  done
-  exit 0
-}
-
-watch_command() {
-  PORT=$((PORT+1))
-  while [ 1 ]; do
-      clear
-      date
-      redis-cli -p $PORT cluster nodes | head -30
-      sleep 1
-  done
-  exit 0
-}
-
-tail_command() {
-  INSTANCE=$2
-  PORT=$((PORT+INSTANCE))
-  tail -f ${PORT}.log
-  exit 0
-}
-
-call_command() {
-  while [ $((PORT < ENDPORT)) != "0" ]; do
-      PORT=$((PORT+1))
-      redis-cli -p $PORT $2 $3 $4 $5 $6 $7 $8 $9
-  done
-  exit 0
-}
-
-clean_command() {
-  rm -rf *.log
-  rm -rf appendonly*.aof
-  rm -rf dump*.rdb
-  rm -rf nodes*.conf
-  exit 0
-}
-
-clean_logs_command() {
-  rm -rf *.log
-  exit 0
-}
 
 if [ "$1" == "start" ]
 then

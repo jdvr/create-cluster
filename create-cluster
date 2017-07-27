@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "redis-functions.sh"
+
 # Settings
 PORT=30000
 TIMEOUT=2000
@@ -16,17 +18,6 @@ fi
 
 # Computed vars
 ENDPORT=$((PORT+NODES))
-redis-server() {
-  ../../src/redis-server $@
-}
-
-redis-trib() {
-  ../../src/redis-trib.rb $@
-}
-
-redis-cli() {
-  ../../src/redis-cli $@
-}
 
 start_command() {
   while [ $((PORT < ENDPORT)) != "0" ]; do

@@ -31,7 +31,7 @@ commands[call]=call_command
 commands[clean]=clean_command
 commands[clean-logs]=clean_logs_command
 
-${commands[$1]}
+${commands[$1]} ${@:2}
 
 
 echo "Usage: $0 [start|create|stop|watch|tail|clean]"
